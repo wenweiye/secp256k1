@@ -518,6 +518,13 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ecdsa_verify(
     const secp256k1_pubkey *pubkey
 ) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3) SECP256K1_ARG_NONNULL(4);
 
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_sm2_verify(
+    const secp256k1_context* ctx,
+    const secp256k1_ecdsa_signature *sig,
+    const unsigned char *msghash32,
+    const secp256k1_pubkey *pubkey
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3) SECP256K1_ARG_NONNULL(4);
+
 /** Convert a signature to a normalized lower-S form.
  *
  *  Returns: 1 if sigin was not normalized, 0 if it already was.
@@ -574,7 +581,7 @@ SECP256K1_API extern const secp256k1_nonce_function secp256k1_nonce_function_rfc
 /** A default safe nonce generation function (currently equal to secp256k1_nonce_function_rfc6979). */
 SECP256K1_API extern const secp256k1_nonce_function secp256k1_nonce_function_default;
 
-/** Create an ECDSA signature.
+/** Create an ECDSA/SM2 signature.
  *
  *  Returns: 1: signature created
  *           0: the nonce generation function failed, or the secret key was invalid.
@@ -601,7 +608,16 @@ SECP256K1_API int secp256k1_ecdsa_sign(
     const void *ndata
 ) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3) SECP256K1_ARG_NONNULL(4);
 
-/** Verify an ECDSA secret key.
+SECP256K1_API int secp256k1_sm2_sign(
+    const secp256k1_context* ctx,
+    secp256k1_ecdsa_signature *sig,
+    const unsigned char *msghash32,
+    const unsigned char *seckey,
+    secp256k1_nonce_function noncefp,
+    const void *ndata
+) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3) SECP256K1_ARG_NONNULL(4);
+
+/** Verify an ECDSA/SM2 secret key.
  *
  *  A secret key is valid if it is not 0 and less than the secp256k1 curve order
  *  when interpreted as an integer (most significant byte first). The
@@ -617,6 +633,7 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_seckey_verify(
     const secp256k1_context* ctx,
     const unsigned char *seckey
 ) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2);
+
 
 /** Compute the public key for a secret key.
  *
