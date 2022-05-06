@@ -60,4 +60,20 @@ static int secp256k1_sm2_sig_verify(const secp256k1_scalar *sigr, const secp256k
     */
     return 0;
 }
+
+static int secp256k1_sm2_do_encrypt(const secp256k1_ecmult_gen_context *ctx, unsigned char *ciphertext, const secp256k1_ge *pubkey, const unsigned char *message, const unsigned char kLen, const secp256k1_scalar *nonce)
+{
+    /*
+        code here
+    */
+    return 0;
+}
+
+static int secp256k1_sm2_do_decrypt(unsigned char *messsage, const unsigned char kLen, const unsigned char *ciphertext, const secp256k1_scalar sec)
+{
+    /*
+        code here
+    */
+    return 0;
+}
 #endif /* SECP256K1_SM2_IMPL_H */

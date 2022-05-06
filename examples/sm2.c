@@ -18,7 +18,8 @@ int main(void){
         0x61, 0x2B, 0x1F, 0xCE, 0x77, 0xC8, 0x69, 0x34,
         0x5B, 0xFC, 0x94, 0xC7, 0x58, 0x94, 0xED, 0xD3,
     };
-
+    unsigned char message[32];
+    unsigned char ciphertext[128];
     unsigned char seckey[32];
     unsigned char randomize[32];
     unsigned char compressed_pubkey[33];
@@ -103,6 +104,14 @@ int main(void){
     printf("Signature: ");
     print_hex(serialized_signature, sizeof(serialized_signature));
 
+    /*** Enctryption ***/
+    return_val = secp256k1_sm2_encryption(ctx, ciphertext, msg_hash, sizeof(msg_hash), &pubkey, NULL, NULL);
+    assert(return_val);
+
+    /*** decrytion ***/
+    return_val = secp256k1_sm2_decryption(message, sizeof(msg_hash), ciphertext, seckey);
+
+    printf("Is the decrytion succeed? %s\n", return_val ? "true" : "false");
 
     /* This will clear everything from the context and free the memory */
     secp256k1_context_destroy(ctx);

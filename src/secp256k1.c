@@ -824,6 +824,60 @@ int secp256k1_sm2_sign(const secp256k1_context* ctx, secp256k1_ecdsa_signature *
     return ret;
 }
 
+static int secp256k1_sm2_encrytion_inner(const secp256k1_context* ctx, unsigned char *ciphertext, const unsigned char *msg, const unsigned char kLen, const secp256k1_ge *pubkey, secp256k1_nonce_function noncefp, const void* noncedata){
+    secp256k1_scalar non;
+    unsigned char nonce32[32];
+    unsigned int count = 0;
+    int ret = 0;
+    
+    if (noncefp == NULL) {
+        noncefp = secp256k1_nonce_function_default;
+    }
+
+    while (1) {
+        int is_nonce_valid;
+        ret = !!noncefp(nonce32, msg, ciphertext, NULL, (void*)noncedata, count);
+        if (!ret) {
+            break;
+        }
+        
+        is_nonce_valid = secp256k1_scalar_set_b32_seckey(&non, nonce32);
+        secp256k1_declassify(ctx, &is_nonce_valid, sizeof(is_nonce_valid));
+        if (is_nonce_valid) {
+            /* you need to implement secp256k1_sm2_do_encrypt function */
+            ret = secp256k1_sm2_do_encrypt(&ctx->ecmult_gen_ctx, ciphertext, pubkey, msg, kLen, &non);
+            secp256k1_declassify(ctx, &ret, sizeof(ret));
+            if (ret) {
+                break;
+            }
+        }
+        count++;
+    }
+    memset(nonce32, 0, 32);
+    secp256k1_scalar_clear(&non);
+    return ret;
+}
+
+int secp256k1_sm2_encryption(const secp256k1_context* ctx, unsigned char *ciphertext, const unsigned char *msg, const unsigned char kLen, const secp256k1_pubkey *pubkey, secp256k1_nonce_function noncefp, const void* noncedata){
+    secp256k1_ge pk;
+    VERIFY_CHECK(ctx != NULL);
+    ARG_CHECK(msg != NULL);
+    ARG_CHECK(pubkey != NULL);
+
+    return secp256k1_pubkey_load(ctx, &pk, pubkey) 
+            && secp256k1_sm2_encrytion_inner(ctx, ciphertext, msg, kLen, &pk, noncefp, noncedata);
+}
+
+int secp256k1_sm2_decryption(unsigned char *msg, const unsigned char kLen, const unsigned char *ciphertext, const unsigned char *seckey){
+    secp256k1_scalar sec;
+    VERIFY_CHECK(ciphertext != NULL);
+    VERIFY_CHECK(seckey != NULL);
+
+    secp256k1_scalar_set_b32(&sec, seckey, NULL);
+    /* you need to implement secp256k1_sm2_do_decrypt function */
+    return secp256k1_sm2_do_decrypt(msg, kLen, ciphertext, sec);
+}
+
 #ifdef ENABLE_MODULE_ECDH
 # include "modules/ecdh/main_impl.h"
 #endif

@@ -848,6 +848,24 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_tagged_sha256(
     size_t msglen
 ) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3) SECP256K1_ARG_NONNULL(5);
 
+
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_sm2_encryption(
+    const secp256k1_context* ctx, 
+    unsigned char *ciphertext, 
+    const unsigned char *msg, 
+    const unsigned char kLen, 
+    const secp256k1_pubkey *pubkey, 
+    secp256k1_nonce_function noncefp, 
+    const void* noncedata
+)SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3) SECP256K1_ARG_NONNULL(5);
+
+SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_sm2_decryption(
+    unsigned char *msg, 
+    const unsigned char kLen, 
+    const unsigned char *ciphertext, 
+    const unsigned char *seckey
+)SECP256K1_ARG_NONNULL(3) SECP256K1_ARG_NONNULL(4);
+
 #ifdef __cplusplus
 }
 #endif
