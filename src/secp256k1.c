@@ -824,6 +824,22 @@ int secp256k1_sm2_sign(const secp256k1_context* ctx, secp256k1_ecdsa_signature *
     return ret;
 }
 
+int secp256k1_sm2_verify(const secp256k1_context* ctx, const secp256k1_ecdsa_signature *sig, const unsigned char *msghash32, const secp256k1_pubkey *pubkey
+){
+    secp256k1_ge q;
+    secp256k1_scalar r, s;
+    secp256k1_scalar m;
+    VERIFY_CHECK(ctx != NULL);
+    ARG_CHECK(msghash32 != NULL);
+    ARG_CHECK(sig != NULL);
+    ARG_CHECK(pubkey != NULL);
+
+    secp256k1_scalar_set_b32(&m, msghash32, NULL);
+    secp256k1_ecdsa_signature_load(ctx, &r, &s, sig);
+    return (secp256k1_pubkey_load(ctx, &q, pubkey) &&
+            secp256k1_sm2_sig_verify(&r, &s, &q, &m));
+}
+
 static int secp256k1_sm2_encrytion_inner(const secp256k1_context* ctx, unsigned char *ciphertext, const unsigned char *msg, const unsigned char kLen, const secp256k1_ge *pubkey, secp256k1_nonce_function noncefp, const void* noncedata){
     secp256k1_scalar non;
     unsigned char nonce32[32];
